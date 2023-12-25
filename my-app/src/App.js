@@ -1,5 +1,7 @@
 import './App.css';
 import Webcam from './components/Webcam';
+import React, { useState } from 'react';
+
 
 
 /**
@@ -9,6 +11,26 @@ import Webcam from './components/Webcam';
 import Button from './components/ui/Button'
 
 export default function Component() {
+  const [url, setUrl] = useState('');
+  const [query, setQuery] = useState('');
+
+  const handleSubmit = () => {
+    if (url && query) {
+      fetch(`https://gmm.pzyn1d3.repl.co/?image_url=${encodeURIComponent(url)}&text_query=${encodeURIComponent(query)}`)
+        .then(response => response.json())
+        .then(data => console.log(data))
+        .catch(error => console.error('Error:', error));
+    } else {
+      console.log('Both fields are required');
+    }
+  };
+
+  const handleButtonClick = () => {
+    fetch(`https://gmm.pzyn1d3.repl.co/?image_url=https://storage.googleapis.com/generativeai-downloads/data/scene.jpg&text_query=what%20is%20this`)
+      .then(response => response.json())
+      .then(data => console.log(data));
+  };
+
   return (
     <div className="flex flex-wrap items-center justify-center min-h-screen bg-[#0f0f0f] p-4">
       <div className="w-full md:w-1/2 flex flex-col items-center justify-center">
@@ -21,6 +43,26 @@ export default function Component() {
             className="absolute inset-0 w-full h-full rounded-full bg-green-500 opacity-0 animate-pulse"
           />
         </div>
+        <input
+            type="text"
+            placeholder="Enter URL"
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
+            className="mt-4 p-2 rounded border border-gray-300"
+          />
+          <input
+            type="text"
+            placeholder="Enter Query"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            className="mt-4 ml-2 p-2 rounded border border-gray-300"
+          />
+          <button
+            onClick={handleSubmit}
+            className="mt-4 ml-2 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+          >
+            Submit
+          </button>
         <Button onClick={handleButtonClick} className="mt-4 bg-gray-700 text-white px-4 py-2 rounded hover:bg-gray-600 focus:bg-gray-800">
           Cancel
         </Button>
@@ -34,16 +76,26 @@ export default function Component() {
   )
 }
 
-const handleButtonClick = () => {
-  fetch(`https://gmm.pzyn1d3.repl.co/?image_url=https://storage.googleapis.com/generativeai-downloads/data/scene.jpg&text_query=what%20is%20this`)
-    .then(response => response.json())
-    .then(data => console.log(data));
-};
 
-function MicIcon(props) {
+function MicIcon({ state, ...props }) {
+  let color;
+  switch (state) {
+    case 'idle':
+      color = 'blue';
+      break;
+    case 'recording':
+      color = 'red';
+      break;
+    case 'processing':
+      color = 'green';
+      break;
+    default:
+      color = 'blue';
+  }
   return (
     <svg
       {...props}
+      style={{ color }} // Add color style
       xmlns="http://www.w3.org/2000/svg"
       width="24"
       height="24"
